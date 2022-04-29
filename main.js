@@ -1,99 +1,122 @@
-// add button value to display and array
-function appendElement(array, button) {
-    let str ='';
-    array.push(button);
-    str = array.toString().split(',').join('');
-    return str;
-}
-
 // ensure proper input
-let calcArray = [];
 const display = document.querySelector('.display'); 
 const result = document.querySelector('.result');
 const buttons = document.querySelectorAll('.button');
+
+let num1 = '';
+let num2 = '';
+let operator = '';
+let i = 0;
+
+let input = [];
+
+function displayText(value) {
+  if(value != '=')
+    display.textContent += value + '';
+}
+
 buttons.forEach(button => {
-    button.addEventListener('click', () => {
-        
-        if(button.textContent == '=' && calcArray.length != 0) {
-            result.textContent = calculate(calcArray);
-        }
-        else if(Number(calcArray[calcArray.length-1]) || (calcArray.length == 0 && parseInt(button.textContent))) {
-            display.textContent = appendElement(calcArray, button.textContent);
-            console.log(calcArray);
-        } 
-        else if(!Number(calcArray[calcArray.length-1]) && parseInt(button.textContent)) {
-            display.textContent = '' + appendElement(calcArray, button.textContent);
-            console.log(calcArray);
-        }
-    })
+  button.addEventListener('click', () => {
+    let value = button.textContent;
+
+    // array is empty and new input is a number
+    if(input.length == 0 && Number(value)) {
+      input.push(num1);
+      input[i] += value;
+      displayText(value);
+    }
+    // if last input is number and new input is number
+    else if((Number(input[input.length-1]) && Number(value)) || value == '0') {
+      input[i] += value;
+      displayText(value);
+    }
+    // if last input is a number and new input is an operator
+    else if(Number((input[input.length-1])) && (!Number(value))) {
+      if(input.length == 3 && value == '=') {
+          input.push(operator);
+          i++;
+          input[i] += value;
+          operate(input[0], input[1], input[2]);
+          input.push(num2);
+    }
+      else if(input.length == 3) {
+          input.push(operator);
+          i++;
+          input[i] += value;
+          operate(input[0], input[1], input[2]);
+          input.push(num2);
+      }
+      else if(!input[2] && value != '=') {
+          input.push(num2);
+          i++;
+          input[i] += value;
+          displayText(value);
+          i++;
+          input.push(num2);
+      } else {
+          displayText(value);
+      }
+    }
+    // if last input is operator and new input is number
+    else if(!Number(input[input.length-1]) && (Number(value))) {
+      input[i] += value;
+      displayText(value);
+    }
+
+    console.log(input);
+    
+  })
 })
 
-// CALCULATING
-// group digits together and separate numbers and operators
-function calculate(calcArray) {
-  let str = calcArray.toString().split(',').join('');
-  let digits = [];
-  let numbers = [];
-  let operators = [];
+function operate(num1, operator, num2) {
+  let answer = '';
 
-  console.log(calcArray);
-
-// NEEDS FIXING
-  for(let i = 0; i < str.length; i++) {
-  	digits.push(str[i])
-  	if(str[i]=='+' || str[i]=='-' || 
-       str[i]=='÷' || str[i]=='x' ||
-       str[i]=='=') {
-       operators.push(str[i]);
-       digits.splice(digits.length-1,1); 
-       numbers.push((digits.toString().split(',').join('')).slice(numbers.toString().split(',').join('').length));
-    }
-    console.log(digits);
-    console.log(numbers);
-    console.log(operators);
-  } 
-  // NEEDS FIXING
-
-  const result = function(numbers, operators) {
-    for(let i = 0; i < operators.length-1; i++) {
-      if(operators[i]=='+') {
-        numbers[0] = add(numbers[0],numbers[1]);
-        numbers.splice(1,1);
-        console.log(numbers);
-      }
-      else if(operators[i]=='-') {
-    		numbers[0] = sub(numbers[0],numbers[1]);
- 			  numbers.splice(1,1);
-  		  console.log(numbers);
-			}
-      else if(operators[i]=='x') {
-        numbers[0] = mult(numbers[0],numbers[1]);
-        numbers.splice(1,1);
-        console.log(numbers);
-        }
-      else {
-        numbers[0] = div(numbers[0],numbers[1]);
-        numbers.splice(1,1);
-        console.log(numbers);
-        }
-    }
-    return numbers;
+  if(operator == '+') {
+    answer =  add(Number(num1), Number(num2));
   }
-  return result(numbers, operators).toString().split(',').join('');
+  else if(operator == '-') {
+    answer =  sub(Number(num1), Number(num2));
+  }
+  else if(operator == 'x') {
+    answer =  mult(Number(num1), Number(num2));
+  }
+  else if(operator == '÷') {
+    answer =  div(Number(num1), Number(num2));
+  }
+
+  if(input[input.length-1] == '=') {
+    display.textContent = answer;
+    input = [answer];
+    i = 1;
+    result.textContent = answer;
+    console.log('HI');
+
+  } else {
+    input = [answer, input[input.length-1]];
+    console.log(input);
+    i = 2;
+    num2 = '';
+
+  }
+
+  display.textContent = `${input[0]}${input[1]}`
+  result.textContent = answer;
+
+  return 0;
 }
 
 function add(num1, num2) {
-    return parseInt(num1) + parseInt(num2);
+  return Number(num1) + Number(num2);
 }
 
 function sub(num1, num2) {
-    return parseInt(num1) - parseInt(num2);
+  return Number(num1) - Number(num2);
 }
 
 function mult(num1, num2) {
-    return parseInt(num1) * parseInt(num2);
+  return Number(num1) * Number(num2);
 }
 
 function div(num1, num2) {
-    return parseInt(num1)/parseInt(num2);
+  return Number(num1)/Number(num2);
 }
